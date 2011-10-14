@@ -29,7 +29,7 @@
     a { color: #103d66; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic; font-family: 'Droid Serif'}
     .download { float: right; }
-		pre.command { background: #000; color: #fff; padding: 15px;}
+		pre.command { background: #000; color: #fff; padding: 15px; overflow:scroll;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
     ul { list-style: none; padding-left:20px; }
@@ -60,17 +60,47 @@
     <h2>Getting Started</h2>
     <h3>Installation</h3>
     <p><pre class='command'>$ gem install rcelery</pre></p>
-    <h3>Defining Tasks</h3>
+    <h3>Setup</h3>
+    <p>RCelery works over AMQP and thus needs an AMQP broker available. Before sending any task requests, RCelery needs to be started:</p>
+    <script src="https://gist.github.com/1287741.js?file=start.rb"></script>
+    <p>Those are the most important options and their default values.</p>
+    <h3>Task Definitions</h3>
     <p>Defining tasks should be done inside a module that includes the <i>RCelery::TaskSupport</i> module:</p>
     <script src="https://gist.github.com/1287741.js?file=tasks.rb"></script>
+
     <p>The RCelery::TaskSupport module provides a method called <i>task</i> which acts a lot like a decorator in Python by using the <i>method_added</i> hook. It takes three options: <i>ignore_result</i>, <i>name</i> and <i>routing_key</i>.</p>
+
     <p>By default, when tasks are processed asynchronously, their result is discarded. This can be changed by setting the <i>ignore_result</i> option to <i>false</i>:</p>
     <script src="https://gist.github.com/1287741.js?file=add.rb"></script>
+
     <p>Tasks are named after the module they're defined in and the method that they're using (i.e. <i>getting_started.one</i>). Set the <i>name</i> option to change this:</p>
     <script src="https://gist.github.com/1287741.js?file=one.rb"></script>
+
     <p>When task requests are made, they are published to the request exchange using a routing key composed of the string 'rcelery' and the name of the application (i.e. <i>rcelery.application_name</i>). Sometimes it is desirable to make requests from one application and have them processed by another. This can be accomplished by setting the <i>routing_key</i> option:</p>
     <script src="https://gist.github.com/1287741.js?file=cross_application.rb"></script>
 
+    <h3>Task Requests and Results</h3>
+    <p>As noted earlier, the <i>task</i> method from <i>RCelery::TaskSupport</i> acts similarly to a decorator in Python. It uses the <i>method_added</i> hook to redefine the next method defined in the module to provide access to the underlying <i>RCelery::Task</i> object. The method it creates in place of the original one responds differently based on how it is invoked:</p>
+    <script src="https://gist.github.com/1287741.js?file=invocation.rb"></script>
+    <p>Calling the method with no arguments will return the <i>RCelery::Task</i> instance associated with that task. Passing in any arguments will try and call the original method with those arguments and return the result as usual. In the case that the original method's arity was 0, any arguments you pass in are ignored and the original method is called with no arguments. Calling the method with arguments is generally useful for testing tasks.</p>
+    <p>The simplest way to send a task request is to use the <i>delay</i> method on the <i>RCelery::Task</i> instance associated with that task. The arguments passed to delay should correspond to the arguments that the original method takes:</p>
+    <script src="https://gist.github.com/1287741.js?file=delay.rb"></script>
+    <p>The return value from the <i>delay</i> method is dependent on whether the task was configured to ignore the result or not. If the <i>ignore_result</i> option was false, a <i>RCelery::AsyncResult</i> instance is returned which can be used to then get the result by calling the <i>wait</i> method on that object. Otherwise, <i>nil</i> is returned.</p>
+    <h3>Processing Task Requests</h3>
+    <p>RCelery ships with an executable that can be run to process task requests:</p>
+    <pre class='command'>$ rceleryd --help
+Usage: rceleryd [options]
+    -n, --hostname HOSTNAME          Hostname of the AMQP broker
+    -p, --port PORT                  Port of the AMQP broker
+    -v, --vhost VHOST                Vhost of the AMQP broker
+    -u, --username USERNAME          Username to use during authentication with the AMQP broker
+    -w, --password PASSWORD          Password to use during authentication with the AMQP broker
+    -a, --application APPLICATION    Name of the application
+    -t, --tasks lib1,lib2,...        List of libraries to require that contain task definitions
+    -r, --rails                      Require 'config/environment' to provide the Rails environment
+    -W, --workers NUMBER             The number of workers to launch (default 1)
+    -h, --help                       Show this message</pre>
+    <p>Most options should be set to the same values that were used when starting RCelery. The <i>--tasks</i> option should be set to a list of files that have task declarations in them. The <i>--workers</i> option can be used to set the number of worker threads to spawn. As requests come in, they are placed in a global queue and each worker thread grabs tasks from there when they're available to process task requests.</p>
     <h2>Authors</h2>
     <p><a href='http://github.com/198d'>John MacKenzie</a> <br/>
     <a href='http://github.com/natw'>Nat Williams</a> <br/>

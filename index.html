@@ -54,7 +54,7 @@
     <h1><a href="http://github.com/leapfrogdevelopment/rcelery">RCelery</a></h1>
 
     <div class="description">
-      RCelery is a Ruby port of <a href='http://github/ask/celery'>celery</a>, the distributed task queue for Python. It does not support all of the features of celery, but does interoperate well with it, as long as both sides use the AMQP backend and JSON serializer.
+      RCelery is a Ruby port of <a href='http://github/ask/celery'>celery</a>, the distributed task queue for Python. It does not support all of the features of celery, but does interoperate well with it as long as both sides use the AMQP backend and JSON serializer.
     </div>
 
     <h2>Getting Started</h2>
@@ -86,6 +86,11 @@
     <p>The simplest way to send a task request is to use the <i>delay</i> method on the <i>RCelery::Task</i> instance associated with that task. The arguments passed to delay should correspond to the arguments that the original method takes:</p>
     <script src="https://gist.github.com/1287741.js?file=delay.rb"></script>
     <p>The return value from the <i>delay</i> method is dependent on whether the task was configured to ignore the result or not. If the <i>ignore_result</i> option was false, a <i>RCelery::AsyncResult</i> instance is returned which can be used to then get the result by calling the <i>wait</i> method on that object. Otherwise, <i>nil</i> is returned.</p>
+    <h3>Rails</h3>
+    <p>RCelery was built to work seamlessly with both Rails 2.3.x and 3.x. Simply configure the application to depend on the RCelery gem and place a configuration file called <i>rcelery.yml</i> in the application's <i>config</i> directory:</p>
+    <script src="https://gist.github.com/1287741.js?file=rcelery.yml"></script>
+    <h3>Eager Mode</h3>
+    <p>In certain situations (i.e. during development or testing) it is desirable to avoid running an AMQP broker and just process tasks immediately. This can be done by setting the <i>eager_mode</i> option to <i>true</i> in your Rails config or when starting RCelery.</p>
     <h3>Processing Task Requests</h3>
     <p>RCelery ships with an executable that can be run to process task requests:</p>
     <pre class='command'>$ rceleryd --help

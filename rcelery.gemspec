@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name = 'rcelery'
   s.summary = 'Ruby implementation of the Python Celery library.'
-  s.version = '1.0.0'
+  s.version = '1.0.1'
 
   ignore = ['.gitignore']
   s.files = `git ls-files`.split("\n") - ignore

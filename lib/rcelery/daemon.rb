@@ -38,6 +38,8 @@ module RCelery
 
         opt.on('-r', '--rails', 'Require \'config/environment\' to provide the Rails environment') do
           require 'config/environment'
+          require 'rcelery/rails'
+          RCelery::Rails.initialize
           ::Rails.logger.auto_flushing = true
         end
 

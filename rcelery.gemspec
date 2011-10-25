@@ -4,13 +4,14 @@ Gem::Specification.new do |s|
   s.version = '1.0.0'
 
   ignore = ['.gitignore']
-  s.files = `git ls-files`.split("\n") - ignore
-  s.test_files = `git ls-files -- spec/*`.split("\n")
+  s.files = Dir['spec/**/*', 'lib/**/*', 'bin/**/*', 'rails/**/*',
+                'rcelery.gemspec', 'Gemfile', 'LICENSE', 'Rakefile']
+  s.test_files = Dir['spec/**/*']
   s.executables << 'rceleryd'
   s.require_paths = ['lib']
 
   s.authors = ['John MacKenzie', 'Kris Schultz', 'Nat Williams']
-  s.homepage = 'http://github.com'
+  s.homepage = 'https://github.com/leapfrogdevelopment/rcelery'
   s.email = 'oss@leapfrogdevelopment.com'
 
   s.add_dependency('amqp', '~> 0.7.3')

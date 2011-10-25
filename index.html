@@ -46,7 +46,7 @@
     <h1><a href="http://github.com/leapfrogdevelopment/rcelery">RCelery</a></h1>
 
     <div class="description">
-      RCelery is a Ruby port of <a href='http://github/ask/celery'>celery</a>, the distributed task queue for Python. It does not support all of the features of celery, but does interoperate well with it, as long as both sides use the AMQP backend and JSON serializer.
+      RCelery is a Ruby port of <a href='http://github/ask/celery'>celery</a>, the distributed task queue for Python. It does not support all of the features of celery, but does interoperate well with it as long as both sides use the AMQP backend and JSON serializer.
     </div>
 
     <h2>Getting Started</h2>
@@ -81,6 +81,12 @@
     <p>The simplest way to send a task request is to use the <i>delay</i> method on the <i>RCelery::Task</i> instance associated with that task. The arguments passed to delay should correspond to the arguments that the original method takes:</p>
     <script src="https://gist.github.com/1287741.js?file=delay.rb"></script>
     <p>The return value from the <i>delay</i> method is dependent on whether the task was configured to ignore the result or not. If the <i>ignore_result</i> option was false, a <i>RCelery::AsyncResult</i> instance is returned which can be used to then get the result by calling the <i>wait</i> method on that object. Otherwise, <i>nil</i> is returned.</p>
+    <h3>Rails</h3>
+    <p>RCelery was built to work seamlessly with both Rails 2.3.x and 3.x. Simply configure the application to depend on the RCelery gem and place a configuration file called <i>rcelery.yml</i> in the application's <i>config</i> directory:</p>
+    <script src="https://gist.github.com/1287741.js?file=rcelery.yml"></script>
+    <p>RCelery will automatically be started with the appropriate configuration when the Rails environment boots.</p>
+    <h3>Eager Mode</h3>
+    <p>In certain situations (i.e. during development or testing) it is desirable to avoid running an AMQP broker and just process tasks immediately. This can be done by setting the <i>eager_mode</i> option to <i>true</i> in your Rails config or when starting RCelery.</p>
     <h3>Processing Task Requests</h3>
     <p>RCelery ships with an executable that can be run to process task requests:</p>
     <pre class='command'>$ rceleryd --help
@@ -95,7 +101,7 @@ Usage: rceleryd [options]
     -r, --rails                      Require 'config/environment' to provide the Rails environment
     -W, --workers NUMBER             The number of workers to launch (default 1)
     -h, --help                       Show this message</pre>
-    <p>Most options should be set to the same values that were used when starting RCelery. The <i>--tasks</i> option should be set to a list of files that have task declarations in them. The <i>--workers</i> option can be used to set the number of worker threads to spawn. As requests come in, they are placed in a global queue and each worker thread grabs tasks from there when they're available to process task requests.</p>
+    <p>Most options should be set to the same values that were used when starting RCelery. The <i>--tasks</i> option should be set to a list of files that have task declarations in them. The <i>--workers</i> option can be used to set the number of worker threads to spawn. As requests come in, they are placed in a global queue and each worker thread grabs tasks from there when they're available to process task requests. Use the <i>--rails</i> option when running <i>rceleryd</i> from the root of a Rails application to get the Rails environment.</p>
     <h2>Authors</h2>
     <p><a href='http://github.com/198d'>John MacKenzie</a> <br/>
     <a href='http://github.com/natw'>Nat Williams</a> <br/>

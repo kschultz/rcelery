@@ -61,14 +61,17 @@
     <h3>Installation</h3>
     <p><pre class='command'>$ gem install rcelery</pre></p>
     <h3>Setup</h3>
-    <p>RCelery works over AMQP and thus needs an AMQP broker available. Before sending any task requests, RCelery needs to be started:</p>
+    <p>RCelery works over AMQP and needs an AMQP broker running:</p>
+    <pre class="command">$ rabbitmq-server</pre>
+    <p>RCelery was tested using <a href="http://www.rabbitmq.com">RabbitMQ</a>, however, it should work with any AMQP broker.</p>
+    <p>Before sending any task requests, RCelery also needs to be started:</p>
     <script src="https://gist.github.com/1287741.js?file=start.rb"></script>
     <p>Those are the most important options and their default values.</p>
     <h3>Task Definitions</h3>
     <p>Defining tasks should be done inside a module that includes the <i>RCelery::TaskSupport</i> module:</p>
     <script src="https://gist.github.com/1287741.js?file=tasks.rb"></script>
 
-    <p>The RCelery::TaskSupport module provides a method called <i>task</i> which acts a lot like a decorator in Python by using the <i>method_added</i> hook. It takes three options: <i>ignore_result</i>, <i>name</i> and <i>routing_key</i>.</p>
+    <p>The <i>RCelery::TaskSupport</i> module provides a method called <i>task</i> which acts a lot like a decorator in Python by using the <i>method_added</i> hook. It takes three options: <i>ignore_result</i>, <i>name</i> and <i>routing_key</i>.</p>
 
     <p>By default, when tasks are processed asynchronously, their result is discarded. This can be changed by setting the <i>ignore_result</i> option to <i>false</i>:</p>
     <script src="https://gist.github.com/1287741.js?file=add.rb"></script>
@@ -76,7 +79,7 @@
     <p>Tasks are named after the module they're defined in and the method that they're using (i.e. <i>getting_started.one</i>). Set the <i>name</i> option to change this:</p>
     <script src="https://gist.github.com/1287741.js?file=one.rb"></script>
 
-    <p>When task requests are made, they are published to the request exchange using a routing key composed of the string 'rcelery' and the name of the application (i.e. <i>rcelery.application_name</i>). Sometimes it is desirable to make requests from one application and have them processed by another. This can be accomplished by setting the <i>routing_key</i> option:</p>
+    <p>When task requests are made, they are published to the request exchange using a routing key composed of the string 'rcelery' and the name of the application (i.e. <i>rcelery.application</i>). Sometimes it is desirable to make requests from one application and have them processed by another. This can be accomplished by setting the <i>routing_key</i> option:</p>
     <script src="https://gist.github.com/1287741.js?file=cross_application.rb"></script>
 
     <h3>Task Requests and Results</h3>

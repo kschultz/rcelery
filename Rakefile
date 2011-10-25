@@ -4,12 +4,9 @@ Bundler.setup
 
 require 'rake'
 require 'rspec/core/rake_task'
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 
-def gemspec
-  eval(File.new('rcelery.gemspec').read)
-end
-Rake::GemPackageTask.new(gemspec).define
+Gem::PackageTask.new(Gem::Specification.load('rcelery.gemspec')).define
 
 desc 'Run ruby worker integration specs'
 RSpec::Core::RakeTask.new('spec:integration:ruby_worker') do |t|

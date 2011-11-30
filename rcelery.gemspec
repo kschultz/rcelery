@@ -1,7 +1,12 @@
+lib = File.expand_path('../lib/', __FILE__)
+$:.unshift lib unless $:.include?(lib)
+
+require 'rcelery/version'
+
 Gem::Specification.new do |s|
   s.name = 'rcelery'
   s.summary = 'Ruby implementation of the Python Celery library.'
-  s.version = '1.0.0'
+  s.version = RCelery::VERSION
 
   ignore = ['.gitignore']
   s.files = `git ls-files`.split("\n") - ignore

@@ -11,6 +11,7 @@ Example
 tasks.rb:
 
 ```ruby
+require 'rubygems'
 require 'rcelery'
 
 module Tasks
@@ -41,7 +42,7 @@ puts "Subtract Result: #{difference.wait}"
 Run the example:
 
 ```shell
-$ ruby bin/rceleryd -t tasks.rb &
+$ ruby rceleryd -t tasks.rb &
 $ ruby client.rb
 ```
 

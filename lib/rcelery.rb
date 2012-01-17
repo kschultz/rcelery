@@ -51,7 +51,17 @@ module RCelery
   end
 
   def self.channel
-    @channel ||= AMQP::Channel.new
+    @channel ||= get_new_channel
+  end
+
+  def self.get_new_channel
+    wait_for_connection
+    AMQP::Channel.new
+  end
+
+  def self.wait_for_connection
+    while AMQP.connection.nil?; end
+    while !AMQP.connection.connected?; end
   end
 
   def self.thread

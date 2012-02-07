@@ -77,6 +77,15 @@ describe RCelery do
       RCelery.start(@options.merge(:eager_mode => true))
       RCelery.running?.should be_true
     end
+
+    it "returns a channel if AMQP has a connection and is connected" do
+      RR::Space.reset_double(RCelery, :channel)
+      stub_channel = Object.new
+      connection = stub!.connected? { true }.subject
+      stub(AMQP).connection { connection }
+      stub(AMQP::Channel).new { stub_channel }
+      RCelery.channel.should be(stub_channel)
+    end
   end
 
   describe '.stop' do

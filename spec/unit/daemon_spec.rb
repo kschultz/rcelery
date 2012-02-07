@@ -12,10 +12,89 @@ describe RCelery::Daemon do
   end
 
   describe '.new' do
-    it 'sets a config attr' do
+    it 'sets a config instance variable' do
       d = RCelery::Daemon.new([])
       d.instance_variable_get(:@config).should be_an_instance_of(RCelery::Configuration)
     end
+
+    it 'sets the host using -n on the config object' do
+      d = RCelery::Daemon.new(['-n','hostname'])
+      d.instance_variable_get(:@config).host.should == "hostname"
+    end
+
+    it 'sets the host using --hostname on the config object' do
+      d = RCelery::Daemon.new(['--hostname','another_hostname'])
+      d.instance_variable_get(:@config).host.should == "another_hostname"
+    end
+
+    it 'sets the port using -p on the config object' do
+      d = RCelery::Daemon.new(['-p','19567'])
+      d.instance_variable_get(:@config).port.should == 19567
+    end
+
+    it 'sets the port using --port on the config object' do
+      d = RCelery::Daemon.new(['--port','5677'])
+      d.instance_variable_get(:@config).port.should == 5677
+    end
+
+    it 'sets the vhost using -v on the config object' do
+      d = RCelery::Daemon.new(['-v','/qa'])
+      d.instance_variable_get(:@config).vhost.should == "/qa"
+    end
+
+    it 'sets the vhost using --vhost on the config object' do
+      d = RCelery::Daemon.new(['--vhost','/stage'])
+      d.instance_variable_get(:@config).vhost.should == "/stage"
+    end
+
+    it 'sets the vhost using -v on the config object' do
+      d = RCelery::Daemon.new(['-v','/qa'])
+      d.instance_variable_get(:@config).vhost.should == "/qa"
+    end
+
+    it 'sets the vhost using --vhost on the config object' do
+      d = RCelery::Daemon.new(['--vhost','/stage'])
+      d.instance_variable_get(:@config).vhost.should == "/stage"
+    end
+
+    it 'sets the username using -u on the config object' do
+      d = RCelery::Daemon.new(['-u','tester'])
+      d.instance_variable_get(:@config).username.should == "tester"
+    end
+
+    it 'sets the username using --username on the config object' do
+      d = RCelery::Daemon.new(['--username','testerson'])
+      d.instance_variable_get(:@config).username.should == "testerson"
+    end
+
+    it 'sets the password using -w on the config object' do
+      d = RCelery::Daemon.new(['-w','testpass'])
+      d.instance_variable_get(:@config).password.should == "testpass"
+    end
+
+    it 'sets the password using --password on the config object' do
+      d = RCelery::Daemon.new(['--password','another_pass'])
+      d.instance_variable_get(:@config).password.should == "another_pass"
+    end
+
+    it 'sets the vhost using -a on the config object' do
+      d = RCelery::Daemon.new(['-a','test'])
+      d.instance_variable_get(:@config).application.should == "test"
+    end
+
+    it 'sets the vhost using --application on the config object' do
+      d = RCelery::Daemon.new(['--application','another_test'])
+      d.instance_variable_get(:@config).application.should == "another_test"
+    end
+
+    it 'sets the workers using -W on the config object' do
+      d = RCelery::Daemon.new(['-W','3'])
+      d.instance_variable_get(:@config).worker_count.should == 3
+    end
+
+    it 'sets the workers using --workers on the config object' do
+      d = RCelery::Daemon.new(['--workers','5'])
+      d.instance_variable_get(:@config).worker_count.should == 5
+    end
   end
 end
-

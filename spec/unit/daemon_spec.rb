@@ -96,5 +96,76 @@ describe RCelery::Daemon do
       d = RCelery::Daemon.new(['--workers','5'])
       d.instance_variable_get(:@config).worker_count.should == 5
     end
+
+    it 'requires files specified using -t' do
+      d = RCelery::Daemon.new(['-t','config/libtasks'])
+      Libtasks.should be
+    end
+
+    it 'requires files specified using --tasks' do
+      d = RCelery::Daemon.new(['--tasks','config/libtasks'])
+      Libtasks.should be
+    end
+
+    it 'requires multiple files specified using -t' do
+      d = RCelery::Daemon.new(['-t','config/libtasks,config/moretasks'])
+      Libtasks.should be
+      Moretasks.should be
+    end
+
+    it 'requires multiple files specified using --tasks' do
+      d = RCelery::Daemon.new(['--tasks','config/libtasks,config/moretasks'])
+      Libtasks.should be
+      Moretasks.should be
+    end
+
+    it 'requires config/environment when using -r' do
+      require 'rcelery/rails'
+      stub(RCelery::Rails).get_config_hash { {} }
+      d = RCelery::Daemon.new(['-r'])
+      Rails.should be
+    end
+
+    it 'updates the config object with the config hash when using -r' do
+      require 'rcelery/rails'
+      stub(RCelery::Rails).get_config_hash { {:application => "rails_app"} }
+      d = RCelery::Daemon.new(['-r'])
+      d.instance_variable_get(:@config).application.should == "rails_app"
+    end
+
+    it 'sets the Rails logger to auto flush when using -r' do
+      require 'rcelery/rails'
+      stub(RCelery::Rails).get_config_hash { {:application => "rails_app"} }
+      d = RCelery::Daemon.new(['-r'])
+      Rails.logger.auto_flushing.should be_true
+    end
+
+    it 'requires config/environment when using --rails' do
+      require 'rcelery/rails'
+      stub(RCelery::Rails).get_config_hash { {} }
+      d = RCelery::Daemon.new(['--rails'])
+      Rails.should be
+    end
+
+    it 'updates the config object with the config hash when using --rails' do
+      require 'rcelery/rails'
+      stub(RCelery::Rails).get_config_hash { {:application => "rails_app"} }
+      d = RCelery::Daemon.new(['--rails'])
+      d.instance_variable_get(:@config).application.should == "rails_app"
+    end
+
+    it 'sets the Rails logger to auto flush when using --rails' do
+      require 'rcelery/rails'
+      stub(RCelery::Rails).get_config_hash { {:application => "rails_app"} }
+      d = RCelery::Daemon.new(['--rails'])
+      Rails.logger.auto_flushing.should be_true
+    end
+
+    it 'overrides config set by the rails options with subsequent options' do
+      require 'rcelery/rails'
+      stub(RCelery::Rails).get_config_hash { {:application => "rails_app"} }
+      d = RCelery::Daemon.new(['--rails','-w','another_password'])
+      d.instance_variable_get(:@config).password.should == "another_password"
+    end
   end
 end

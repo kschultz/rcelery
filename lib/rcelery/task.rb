@@ -70,7 +70,6 @@ module RCelery
       apply_async(
         :args => args,
         :kwargs => kwargs,
-        :task_id => request.task_id,
         :retries => request.retries + 1,
         :eta => options[:eta] || default_eta
       )

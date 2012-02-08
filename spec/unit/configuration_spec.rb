@@ -28,9 +28,9 @@ describe RCelery::Configuration do
     @config.application.should == 'application'
   end
 
-  # it 'defaults the worker count to 1' do
-    # @config.worker_count.should == 1
-  # end
+  it 'defaults the worker count to 1' do
+    @config.worker_count.should == 1
+  end
 
   it 'defaults eager mode to false' do
     @config.eager_mode.should == false
@@ -66,11 +66,6 @@ describe RCelery::Configuration do
     config.application.should == 'otherapp'
   end
 
-  # it 'overrides the default worker count when a hash is given to initialize' do
-    # config = RCelery::Configuration.new(:worker_count => 23)
-    # config.worker_count.should == 23
-  # end
-
   it 'overrides the eager mode setting' do
     config = RCelery::Configuration.new(:eager_mode => true)
     config.eager_mode.should == true
@@ -87,5 +82,15 @@ describe RCelery::Configuration do
       :worker_count => 1,
       :eager_mode => false,
     }
+  end
+
+  it 'overrides the default worker count when a hash is given to initialize' do
+    config = RCelery::Configuration.new(:worker_count => 23)
+    config.worker_count.should == 23
+  end
+
+  it 'updates configuration with the supplied hash' do
+    @config.update_with_hash({:application => "test_app"})
+    @config.application.should == "test_app"
   end
 end

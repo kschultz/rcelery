@@ -14,11 +14,15 @@ module RCelery
     add_optional_param(:eager_mode, ConfigToolkit::Boolean, false)
 
     def initialize(options = {})
-      load(ConfigToolkit::HashReader.new(options))
+      update_with_hash(options)
     end
 
     def to_hash
       dump(ConfigToolkit::HashWriter.new)
+    end
+
+    def update_with_hash(options = {})
+      load(ConfigToolkit::HashReader.new(options))
     end
   end
 end

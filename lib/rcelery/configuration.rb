@@ -1,6 +1,7 @@
 require 'configtoolkit'
 require 'configtoolkit/hashreader'
 require 'configtoolkit/hashwriter'
+require 'configtoolkit/overridereader'
 
 module RCelery
   class Configuration < ConfigToolkit::BaseConfig
@@ -14,7 +15,7 @@ module RCelery
     add_optional_param(:eager_mode, ConfigToolkit::Boolean, false)
 
     def initialize(options = {})
-      update_with_hash(options)
+      load(ConfigToolkit::HashReader.new(options))
     end
 
     def to_hash
@@ -22,7 +23,7 @@ module RCelery
     end
 
     def update_with_hash(options = {})
-      load(ConfigToolkit::HashReader.new(options))
+      load(ConfigToolkit::OverrideReader.new(ConfigToolkit::HashReader.new(to_hash), ConfigToolkit::HashReader.new(options)))
     end
   end
 end

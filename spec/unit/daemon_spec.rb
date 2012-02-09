@@ -164,8 +164,8 @@ describe RCelery::Daemon do
     it 'overrides config set by the rails options with subsequent options' do
       require 'rcelery/rails'
       stub(RCelery::Rails).get_config_hash { {:application => "rails_app"} }
-      d = RCelery::Daemon.new(['--rails','-w','another_password'])
-      d.instance_variable_get(:@config).password.should == "another_password"
+      d = RCelery::Daemon.new(['--rails','-a','another_app'])
+      d.instance_variable_get(:@config).application.should == "another_app"
     end
   end
 end

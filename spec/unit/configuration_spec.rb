@@ -90,7 +90,14 @@ describe RCelery::Configuration do
   end
 
   it 'updates configuration with the supplied hash' do
+    @config.application = "this_app"
     @config.update_with_hash({:application => "test_app"})
     @config.application.should == "test_app"
+  end
+
+  it 'does not revert old config options' do
+    @config.password = "this_pass"
+    @config.update_with_hash({:application => "test_app"})
+    @config.password.should == "this_pass"
   end
 end

@@ -23,7 +23,17 @@ module RCelery
     end
 
     def update_with_hash(options = {})
+      options = symbolize_options(options)
       load(ConfigToolkit::OverrideReader.new(ConfigToolkit::HashReader.new(to_hash), ConfigToolkit::HashReader.new(options)))
+    end
+
+    private
+
+    def symbolize_options(options = {})
+      options.inject({}) do |new_options, (key, value)|
+        new_options[(key.to_sym rescue key) || key] = value
+        new_options
+      end
     end
   end
 end

@@ -100,4 +100,9 @@ describe RCelery::Configuration do
     @config.update_with_hash({:application => "test_app"})
     @config.password.should == "this_pass"
   end
+
+  it 'updates config with the supplied hash with string keys' do
+    @config.update_with_hash({'vhost' => '/qa', 'host' => 'test-mq', 'application' => "test_app"})
+    @config.application.should == "test_app"
+  end
 end

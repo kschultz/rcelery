@@ -6,6 +6,7 @@ require 'rcelery/task/context'
 module RCelery
   class Task
     class RetryError < StandardError; end
+    class InvalidArgsError < StandardError; end
     class MaxRetriesExceededError < StandardError; end
 
     class << self
@@ -38,6 +39,12 @@ module RCelery
         RCelery.exchanges[:result],
         :routing_key => queue_name
       )
+    end
+
+    def self.send_task(task_name, options = {})
+      raise RCelery::Task::InvalidArgsError unless task_name.is_a?(String) && !task_name.empty?
+      opts = options.merge({:name => task_name, :ignore_result => false})
+      new(opts).apply_async(opts)
     end
 
     def initialize(options = {})

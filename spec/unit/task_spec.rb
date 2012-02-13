@@ -189,4 +189,104 @@ describe RCelery::Task do
       RCelery.stop
     end
   end
+
+  describe '#retry' do
+    it 'republishes a task without the current task id' do
+      task = RCelery::Task.new(:ignore_result => false)
+      task.request.update(
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
+        :retries => 0,
+        :args => [],
+        :kwargs => {'this' => 'that'}
+      )
+
+      eta = Time.at(Time.now + (60 * 3))
+
+      expected_options = {
+        :args => [],
+        :kwargs => {'this' => 'that'},
+        :retries => 1,
+        :eta => eta
+      }
+      mock(task).apply_async(expected_options)
+      begin
+        task.retry(:eta => eta)
+      rescue RCelery::Task::RetryError
+      end
+    end
+
+    it 'uses options passed to it before the request values' do
+      task = RCelery::Task.new(:ignore_result => false)
+      task.request.update(
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
+        :retries => 0,
+        :args => [],
+        :kwargs => {'this' => 'that'}
+      )
+
+      eta = Time.at(Time.now + (60 * 3))
+
+      expected_options = {
+        :args => [1,2],
+        :kwargs => {'another' => 'that'},
+        :retries => 1,
+        :eta => eta
+      }
+      mock(task).apply_async(expected_options)
+      begin
+        task.retry(:eta => eta, :args => [1,2], :kwargs => {'another' => 'that'})
+      rescue RCelery::Task::RetryError
+      end
+    end
+
+    it 'raises RetryError when retrying' do
+      task = RCelery::Task.new(:ignore_result => false)
+      task.request.update(
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
+        :retries => 0,
+        :args => [],
+        :kwargs => {'this' => 'that'}
+      )
+
+      stub(task).apply_async()
+      lambda { task.retry(:args => [1,2], :kwargs => {'another' => 'that'}) }.should raise_error(RCelery::Task::RetryError)
+    end
+
+    it 'raises MaxRetriesExceededError when max retries have been exceeded' do
+      task = RCelery::Task.new(:ignore_result => false)
+      task.request.update(
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
+        :retries => 3,
+        :args => [],
+        :kwargs => {'this' => 'that'}
+      )
+
+      lambda { task.retry(:args => [1,2], :kwargs => {'another' => 'that'}) }.should raise_error(RCelery::Task::MaxRetriesExceededError)
+    end
+
+    it 'raises MaxRetriesExceededError when max retries defined in the options have been exceeded' do
+      task = RCelery::Task.new(:ignore_result => false)
+      task.request.update(
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
+        :retries => 1,
+        :args => [],
+        :kwargs => {'this' => 'that'}
+      )
+
+      lambda { task.retry(:max_retries => 1, :args => [1,2], :kwargs => {'another' => 'that'}) }.should raise_error(RCelery::Task::MaxRetriesExceededError)
+    end
+
+    it 'raises a supplied exception when max retries have been exceeded' do
+      class CustomMaxRetriesExceededError < StandardError; end
+      task = RCelery::Task.new(:ignore_result => false)
+      task.request.update(
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
+        :retries => 3,
+        :args => [],
+        :kwargs => {'this' => 'that'}
+      )
+
+      lambda { task.retry(:exc => CustomMaxRetriesExceededError, :args => [1,2], :kwargs => {'another' => 'that'}) }.should raise_error(CustomMaxRetriesExceededError)
+    end
+  end
 end

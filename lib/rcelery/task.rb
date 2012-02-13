@@ -43,8 +43,8 @@ module RCelery
 
     def self.send_task(task_name, options = {})
       raise RCelery::Task::InvalidArgsError unless task_name.is_a?(String) && !task_name.empty?
-      opts = options.merge({:name => task_name, :ignore_result => false})
-      new(opts).apply_async(opts)
+      task_options = {:name => task_name, :ignore_result => false}
+      new(task_options).apply_async(options)
     end
 
     def initialize(options = {})

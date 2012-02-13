@@ -195,26 +195,22 @@ describe RCelery::Task do
       lambda { RCelery::Task.send_task(:args=>[1,2], :kwargs=>{:some => 'kwarg'}, :routing_key=>'the_route') }.should raise_error(RCelery::Task::InvalidArgsError)
     end
 
-    it "does not allow ignore_result to be set to true" do
+    it 'creates a new task with the correct options' do
       expected_options = {
         :name => "new_name",
-        :args => [1,2],
-        :kwargs=>{:some => 'kwarg'},
-        :routing_key=>'the_route',
         :ignore_result => false
       }
-      mock.instance_of(RCelery::Task).apply_async(expected_options)
 
-      RCelery::Task.send_task("new_name", :args=>[1,2], :kwargs=>{:some => 'kwarg'}, :routing_key=>'the_route', :ignore_result => true)
+      mock(RCelery::Task).new(expected_options) { stub("task").apply_async }
+      
+      RCelery::Task.send_task("new_name")
     end
 
-    it 'sets ignore_result to false by default' do
+    it "calls apply_async with the correct options" do
       expected_options = {
-        :name => "new_name",
         :args => [1,2],
         :kwargs=>{:some => 'kwarg'},
-        :routing_key=>'the_route',
-        :ignore_result => false
+        :routing_key=>'the_route'
       }
       mock.instance_of(RCelery::Task).apply_async(expected_options)
 

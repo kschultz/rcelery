@@ -11,3 +11,7 @@ def add(a, b):
 def multiply(a, b):
     return a * b
 
+@task(name='r_celery.integration.not_in_ruby')
+def not_in_ruby(a, b):
+    return a + b + a
+

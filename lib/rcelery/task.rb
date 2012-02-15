@@ -6,7 +6,6 @@ require 'rcelery/task/context'
 module RCelery
   class Task
     class RetryError < StandardError; end
-    class InvalidArgsError < StandardError; end
     class MaxRetriesExceededError < StandardError; end
 
     class << self
@@ -42,8 +41,7 @@ module RCelery
     end
 
     def self.send_task(task_name, options = {})
-      raise RCelery::Task::InvalidArgsError unless task_name.is_a?(String) && !task_name.empty?
-      task_options = {:name => task_name, :ignore_result => false}
+      task_options = {:name => task_name.to_s, :ignore_result => false}
       new(task_options).apply_async(options)
     end
 

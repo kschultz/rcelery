@@ -191,10 +191,6 @@ describe RCelery::Task do
   end
 
   describe "#send_task" do
-    it 'require a task name' do
-      lambda { RCelery::Task.send_task(:args=>[1,2], :kwargs=>{:some => 'kwarg'}, :routing_key=>'the_route') }.should raise_error(RCelery::Task::InvalidArgsError)
-    end
-
     it 'creates a new task with the correct options' do
       expected_options = {
         :name => "new_name",
@@ -204,6 +200,17 @@ describe RCelery::Task do
       mock(RCelery::Task).new(expected_options) { stub("task").apply_async }
       
       RCelery::Task.send_task("new_name")
+    end
+
+    it 'accepts symbols for task names' do
+      expected_options = {
+        :name => "new_name",
+        :ignore_result => false
+      }
+
+      mock(RCelery::Task).new(expected_options) { stub("task").apply_async }
+      
+      RCelery::Task.send_task(:new_name)
     end
 
     it "calls apply_async with the correct options" do

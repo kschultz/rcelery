@@ -40,6 +40,11 @@ module RCelery
       )
     end
 
+    def self.send_task(task_name, options = {})
+      task_options = {:name => task_name.to_s, :ignore_result => false}
+      new(task_options).apply_async(options)
+    end
+
     def initialize(options = {})
       @name = options[:name]
       @method = options[:method]

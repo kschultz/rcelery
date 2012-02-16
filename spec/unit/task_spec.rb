@@ -289,4 +289,39 @@ describe RCelery::Task do
       lambda { task.retry(:exc => CustomMaxRetriesExceededError, :args => [1,2], :kwargs => {'another' => 'that'}) }.should raise_error(CustomMaxRetriesExceededError)
     end
   end
+
+  describe "#send_task" do
+    it 'creates a new task with the correct options' do
+      expected_options = {
+        :name => "new_name",
+        :ignore_result => false
+      }
+
+      mock(RCelery::Task).new(expected_options) { stub("task").apply_async }
+
+      RCelery::Task.send_task("new_name")
+    end
+
+    it 'accepts symbols for task names' do
+      expected_options = {
+        :name => "new_name",
+        :ignore_result => false
+      }
+
+      mock(RCelery::Task).new(expected_options) { stub("task").apply_async }
+
+      RCelery::Task.send_task(:new_name)
+    end
+
+    it "calls apply_async with the correct options" do
+      expected_options = {
+        :args => [1,2],
+        :kwargs=>{:some => 'kwarg'},
+        :routing_key=>'the_route'
+      }
+      mock.instance_of(RCelery::Task).apply_async(expected_options)
+
+      RCelery::Task.send_task("new_name", :args=>[1,2], :kwargs=>{:some => 'kwarg'}, :routing_key=>'the_route')
+    end
+  end
 end

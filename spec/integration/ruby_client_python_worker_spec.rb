@@ -14,4 +14,9 @@ describe 'Ruby Client' do
 
     result.wait.should == 8
   end
+
+  it 'is able to call tasks not in its library' do
+    result = RCelery::Task.send_task('r_celery.integration.not_in_ruby', :args => [4,8], :routing_key => 'rcelery.python.integration')
+    result.wait.should == 16
+  end
 end

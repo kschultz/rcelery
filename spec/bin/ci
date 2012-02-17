@@ -31,25 +31,34 @@ function run_daemons {
 }
 
 function setup {
-  export RCELERY_PORT=${RCELERY_PORT:-5672}
-  export RCELERY_HOST=${RCELERY_HOST:-localhost}
-  export RCELERY_VHOST=${RCELERY_VHOST:-/integration}
-  export RABBITMQ_NODENAME=rcelery@localhost
-  export RABBITMQ_NODE_PORT=$RCELERY_PORT
-  export RABBITMQ_LOG_BASE=var/log
-  export RABBITMQ_MNESIA_BASE=var/mnesia
-
-  mkdir -p spec/integration/var/log
-
   install_gem_dependencies
-  install_python_dependencies
-  # run_rabbit
-  run_daemons
+
+  if $INTEGRATION; then
+    export RCELERY_PORT=${RCELERY_PORT:-5672}
+    export RCELERY_HOST=${RCELERY_HOST:-localhost}
+    export RCELERY_VHOST=${RCELERY_VHOST:-/integration}
+    export RABBITMQ_NODENAME=rcelery@localhost
+    export RABBITMQ_NODE_PORT=$RCELERY_PORT
+    export RABBITMQ_LOG_BASE=var/log
+    export RABBITMQ_MNESIA_BASE=var/mnesia
+    mkdir -p spec/integration/var/log
+
+    install_python_dependencies
+    if $WITH_RABBIT; then
+      run_rabbit
+    fi
+    run_daemons
+  fi
 }
 
 function teardown {
-  # kill $RABBITPID
-  kill $DAEMONSPID
+  if [ -n "$RABBITPID" ]; then
+    kill $RABBITPID
+  fi
+
+  if [ -n "$DAEMONSPID" ]; then
+    kill $DAEMONSPID
+  fi
 }
 
 function break_on_fail {
@@ -74,8 +83,59 @@ function run_integrations {
   break_on_fail
 }
 
+function usage {
+  cat <<EOF
+usage: spec/bin/ci OPTIONS
+
+Script for running test in a continuous integration environment.
+Performs necessary bootstrapping (e.g bundle install, running
+RabbitMQ, running daemons) for each the two test suites.
+
+OPTIONS:
+  -r      Run a local RabbitMQ server.
+  -u      Run the unit tests only. (Do not use with -i.)
+  -i      Run the integration tests only. (Do not use with -u.)
+  -h      Show this message.
+EOF
+}
+
+WITH_RABBIT=false
+UNIT=true
+INTEGRATION=true
+while getopts "riuh" OPTION
+do
+  case $OPTION in
+    r)
+      WITH_RABBIT=true
+      ;;
+    i)
+      if ! $INTEGRATION; then
+        echo 'Option must be used independently of -u.'
+        exit 1
+      fi
+      UNIT=false
+      ;;
+    u)
+      if ! $UNIT; then
+        echo 'Option must be used independently of -i.'
+        exit 1
+      fi
+      INTEGRATION=false
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+  esac
+done
+
 setup
-  run_units
-  run_integrations
+  if $UNIT; then
+    run_units
+  fi
+
+  if $INTEGRATION; then
+    run_integrations
+  fi
 teardown
 

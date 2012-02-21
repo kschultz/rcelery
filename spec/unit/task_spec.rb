@@ -191,7 +191,7 @@ describe RCelery::Task do
   end
 
   describe '#retry' do
-    it 'republishes a task without the current task id' do
+    it 'republishes a task using the current task id' do
       task = RCelery::Task.new(:ignore_result => false)
       task.request.update(
         :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
@@ -204,6 +204,7 @@ describe RCelery::Task do
 
       expected_options = {
         :args => [],
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
         :kwargs => {'this' => 'that'},
         :retries => 1,
         :eta => eta
@@ -228,6 +229,7 @@ describe RCelery::Task do
 
       expected_options = {
         :args => [1,2],
+        :task_id => 'abcdefghijklmnopqrstuvwxyzasdfgh',
         :kwargs => {'another' => 'that'},
         :retries => 1,
         :eta => eta

@@ -53,11 +53,11 @@ function setup {
 
 function teardown {
   if [ -n "$RABBITPID" ]; then
-    kill $RABBITPID
+    kill -INT $RABBITPID
   fi
 
   if [ -n "$DAEMONSPID" ]; then
-    kill $DAEMONSPID
+    kill -INT $DAEMONSPID
   fi
 }
 

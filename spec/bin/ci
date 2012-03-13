@@ -59,6 +59,11 @@ function teardown {
   if [ -n "$DAEMONSPID" ]; then
     kill -INT $DAEMONSPID
   fi
+
+  if [ "$USER" == "jenkins" ]; then
+    sleep 1
+    kill -9 `ps -ef | grep 'rcelery.*celeryd' | grep -v grep | awk '{print $2}'`
+  fi
 }
 
 function break_on_fail {
@@ -138,4 +143,5 @@ setup
     run_integrations
   fi
 teardown
+exit 0
 

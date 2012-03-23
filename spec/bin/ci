@@ -59,6 +59,14 @@ function teardown {
   if [ -n "$DAEMONSPID" ]; then
     kill -INT $DAEMONSPID
   fi
+
+  # celeryd doesn't always shutdown cleanly when running in Jenkins; give
+  # it a second before nuking everything left behind. This assumes the job
+  # is called rcelery.
+  if [ -n "$JENKINS_URL" ]; then
+    sleep 1
+    kill -9 `ps -ef | grep 'rcelery.*celeryd' | grep -v grep | awk '{print $2}'`
+  fi
 }
 
 function break_on_fail {
@@ -138,4 +146,5 @@ setup
     run_integrations
   fi
 teardown
+exit 0
 

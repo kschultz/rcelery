@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.homepage = 'http://github.com'
   s.email = 'oss@leapfrogdevelopment.com'
 
-  s.add_dependency('amqp', '~> 0.7.3')
+  s.add_dependency('amqp', '~> 0.9.7')
   s.add_dependency('uuid', '~> 2.0')
   s.add_dependency('json', '~> 1.0')
   s.add_dependency('configtoolkit', '~> 2.3')

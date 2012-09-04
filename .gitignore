@@ -2,6 +2,9 @@
 spec/integration/python_components/bin
 spec/integration/python_components/include
 spec/integration/python_components/lib
+spec/integration/python_components/build
+spec/integration/python_components/.Python
 spec/integration/var
 Gemfile.lock
 pkg/*
+

@@ -117,8 +117,5 @@ describe RCelery::Pool do
 
       pool.start
     end
-
   end
-
-
 end

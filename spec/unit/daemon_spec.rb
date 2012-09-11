@@ -169,3 +169,10 @@ describe RCelery::Daemon do
     end
   end
 end
+
+class ActiveRecord
+  class Base
+    def self.verify_active_connections!
+    end
+  end
+end

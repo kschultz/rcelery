@@ -41,6 +41,10 @@ describe RCelery::Configuration do
     @config.amqp_auto_recovery.should == false
   end
 
+  it 'defaults AMQP reconnect wait time to 10 seconds' do
+    @config.amqp_reconnect_wait_time.should == 10
+  end
+
   it 'overrides the default host when a hash is given to initialize' do
     config = RCelery::Configuration.new(:host => 'otherhost')
     config.host.should == 'otherhost'
@@ -76,6 +80,11 @@ describe RCelery::Configuration do
     config.amqp_auto_recovery.should == true
   end
 
+  it 'overrides the default amqp_reconnect_wait_time when a hash is given to initialize' do
+    config = RCelery::Configuration.new(:amqp_reconnect_wait_time => 30)
+    config.amqp_reconnect_wait_time.should == 30
+  end
+
   it 'overrides the eager mode setting' do
     config = RCelery::Configuration.new(:eager_mode => true)
     config.eager_mode.should == true
@@ -92,6 +101,7 @@ describe RCelery::Configuration do
       :worker_count => 1,
       :eager_mode => false,
       :amqp_auto_recovery => false,
+      :amqp_reconnect_wait_time => 10,
     }
   end
 

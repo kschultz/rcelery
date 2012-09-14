@@ -81,6 +81,7 @@ describe RCelery do
 
     it 'sets up the AMQP connection to attempt to reconnect on error' do
       @options[:amqp_auto_recovery] = true
+      @options[:amqp_reconnect_wait_time] = 40
 
       channel = mock
       stub(channel).auto_recovery=(true)
@@ -90,7 +91,7 @@ describe RCelery do
       stub(RCelery).channel { channel }
 
       amqp_connection = mock
-      mock(amqp_connection).periodically_reconnect(10)
+      mock(amqp_connection).periodically_reconnect(40)
       mock(amqp_connection).on_error.returns do |block|
         block.call(amqp_connection, "blah")
       end

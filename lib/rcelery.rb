@@ -71,7 +71,7 @@ module RCelery
     RCelery.channel.auto_recovery = true
 
     AMQP.connection.on_error do |conn, connection_close|
-      conn.periodically_reconnect(10)
+      conn.periodically_reconnect(@config.amqp_reconnect_wait_time)
     end
   end
 

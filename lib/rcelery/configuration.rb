@@ -14,6 +14,7 @@ module RCelery
     add_optional_param(:worker_count, Integer, 1)
     add_optional_param(:eager_mode, ConfigToolkit::Boolean, false)
     add_optional_param(:amqp_auto_recovery, ConfigToolkit::Boolean, false)
+    add_optional_param(:amqp_reconnect_wait_time, Integer, 10)
 
     def initialize(options = {})
       load(ConfigToolkit::HashReader.new(options))

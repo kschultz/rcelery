@@ -24,7 +24,7 @@ end
 RSpec.configure do |config|
   config.mock_with :rr
 
-  config.before :all do
+  config.before :each do
     stub(AMQP).start
     stub(AMQP).stop
   end

@@ -15,6 +15,7 @@ describe RCelery::Worker do
     it 'sends a worker online event' do
       mock(RCelery::Events).worker_online('rcelery',RCelery::VERSION,RUBY_PLATFORM)
       stub(RCelery::Events).worker_offline
+      stub(EM).add_periodic_timer
       pool = RCelery::Pool.new
       worker = RCelery::Worker.new
       stub(worker).subscribe
@@ -28,6 +29,7 @@ describe RCelery::Worker do
     it 'sends a worker offline event' do
       stub(RCelery::Events).worker_online
       mock(RCelery::Events).worker_offline('rcelery',RCelery::VERSION,RUBY_PLATFORM)
+      stub(EM).add_periodic_timer
 
       pool = RCelery::Pool.new
       worker = RCelery::Worker.new
@@ -39,6 +41,7 @@ describe RCelery::Worker do
     it 'stops the heartbeat' do
       stub(RCelery::Events).worker_online
       stub(RCelery::Events).worker_offline
+      stub(EM).add_periodic_timer
 
       pool = RCelery::Pool.new
       worker = RCelery::Worker.new

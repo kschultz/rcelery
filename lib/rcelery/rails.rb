@@ -25,4 +25,15 @@ module RCelery
       YAML.load_file(config_file)[::Rails.env]
     end
   end
+
+  class Task
+    class Runner
+      alias_method :task_execute, :execute
+
+      def execute
+        ::ActiveRecord::Base.verify_active_connections!
+        task_execute
+      end
+    end
+  end
 end

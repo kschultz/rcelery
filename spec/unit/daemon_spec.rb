@@ -112,7 +112,7 @@ describe RCelery::Daemon do
       d.instance_variable_get(:@config).amqp_reconnect_wait_time.should == 30
     end
 
-    it 'sets the amqp_auto_recovery using --connection_retry_wait on the config object' do
+    it 'sets the amqp_reconnect_wait_time using --connection_retry_wait on the config object' do
       d = RCelery::Daemon.new(['--connection_retry_wait','40'])
       d.instance_variable_get(:@config).amqp_reconnect_wait_time.should == 40
     end

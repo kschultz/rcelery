@@ -75,6 +75,10 @@ describe RCelery do
       stub(channel).topic
       stub(channel).queue { @queue }
 
+      amqp_connection = stub!.on_error.subject
+      stub(amqp_connection).connected? { false }
+      stub(AMQP).connection { amqp_connection }
+
       stub(RCelery).channel { channel }
       RCelery.start(@options)
     end

@@ -13,6 +13,7 @@ module RCelery
     add_optional_param(:application, String, 'application')
     add_optional_param(:worker_count, Integer, 1)
     add_optional_param(:eager_mode, ConfigToolkit::Boolean, false)
+    add_optional_param(:amqp_auto_recovery, ConfigToolkit::Boolean, false)
 
     def initialize(options = {})
       load(ConfigToolkit::HashReader.new(options))

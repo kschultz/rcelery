@@ -4,6 +4,7 @@ describe RCelery::Configuration do
   before :each do
     @config = RCelery::Configuration.new
   end
+
   it 'defaults the host to localhost' do
     @config.host.should == 'localhost'
   end
@@ -36,6 +37,10 @@ describe RCelery::Configuration do
     @config.eager_mode.should == false
   end
 
+  it 'defaults AMQP auto recovery to false' do
+    @config.amqp_auto_recovery.should == false
+  end
+
   it 'overrides the default host when a hash is given to initialize' do
     config = RCelery::Configuration.new(:host => 'otherhost')
     config.host.should == 'otherhost'
@@ -66,6 +71,11 @@ describe RCelery::Configuration do
     config.application.should == 'otherapp'
   end
 
+  it 'overrides the default amqp_auto_recovery status when a hash is given to initialize' do
+    config = RCelery::Configuration.new(:amqp_auto_recovery => true)
+    config.amqp_auto_recovery.should == true
+  end
+
   it 'overrides the eager mode setting' do
     config = RCelery::Configuration.new(:eager_mode => true)
     config.eager_mode.should == true
@@ -81,6 +91,7 @@ describe RCelery::Configuration do
       :application => 'application',
       :worker_count => 1,
       :eager_mode => false,
+      :amqp_auto_recovery => false,
     }
   end
 

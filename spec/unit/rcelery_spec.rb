@@ -50,6 +50,56 @@ describe RCelery do
       RCelery.exchanges[:event].should == 'events exchange'
     end
 
+    it 'does not setup auto recovery unless asked for by config' do
+      channel = mock
+      dont_allow(channel).auto_recovery=(true)
+      stub(channel).direct
+      stub(channel).topic
+      stub(channel).queue { @queue }
+
+      stub(RCelery).channel { channel }
+
+      amqp_connection = mock
+      dont_allow(amqp_connection).on_error
+      stub(amqp_connection).connected? { false }
+      stub(AMQP).connection { amqp_connection }
+      RCelery.start(@options)
+    end
+
+    it 'sets up the channel to auto recover' do
+      @options[:amqp_auto_recovery] = true
+
+      channel = mock
+      mock(channel).auto_recovery=(true)
+      stub(channel).direct
+      stub(channel).topic
+      stub(channel).queue { @queue }
+
+      stub(RCelery).channel { channel }
+      RCelery.start(@options)
+    end
+
+    it 'sets up the AMQP connection to attempt to reconnect on error' do
+      @options[:amqp_auto_recovery] = true
+
+      channel = mock
+      stub(channel).auto_recovery=(true)
+      stub(channel).direct
+      stub(channel).topic
+      stub(channel).queue { @queue }
+      stub(RCelery).channel { channel }
+
+      amqp_connection = mock
+      mock(amqp_connection).periodically_reconnect(10)
+      mock(amqp_connection).on_error.returns do |block|
+        block.call(amqp_connection, "blah")
+      end
+      stub(amqp_connection).connected? { false }
+      stub(AMQP).connection { amqp_connection }
+
+      RCelery.start(@options)
+    end
+
     it 'sets up the request queue and binds it to the request exchange correctly' do
       stub(@channel).direct('celery', anything) { 'request exchange' }
       mock(@channel).queue('rcelery.some_app', :durable => true) { @queue }

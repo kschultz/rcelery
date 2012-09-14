@@ -26,6 +26,8 @@ module RCelery
       end
 
       channel = RCelery.channel
+      setup_amqp_recovery
+
       @exchanges = {
         :request => channel.direct('celery', :durable => true),
         :result => channel.direct('celeryresults', :durable => true, :auto_delete => true),
@@ -62,6 +64,15 @@ module RCelery
   def self.wait_for_connection
     while AMQP.connection.nil?; end
     while !AMQP.connection.connected?; end
+  end
+
+  def self.setup_amqp_recovery
+    return unless @config.amqp_auto_recovery
+    RCelery.channel.auto_recovery = true
+
+    AMQP.connection.on_error do |conn, connection_close|
+      conn.periodically_reconnect(10)
+    end
   end
 
   def self.thread

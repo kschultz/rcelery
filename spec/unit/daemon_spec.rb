@@ -97,6 +97,16 @@ describe RCelery::Daemon do
       d.instance_variable_get(:@config).worker_count.should == 5
     end
 
+    it 'sets the amqp_auto_recovery using -c on the config object' do
+      d = RCelery::Daemon.new(['-c','true'])
+      d.instance_variable_get(:@config).amqp_auto_recovery.should == true
+    end
+
+    it 'sets the amqp_auto_recovery using --connection_recovery on the config object' do
+      d = RCelery::Daemon.new(['--connection_recovery','true'])
+      d.instance_variable_get(:@config).amqp_auto_recovery.should == true
+    end
+
     it 'requires files specified using -t' do
       d = RCelery::Daemon.new(['-t','config/libtasks'])
       Libtasks.should be

@@ -97,6 +97,26 @@ describe RCelery::Daemon do
       d.instance_variable_get(:@config).worker_count.should == 5
     end
 
+    it 'sets the amqp_auto_recovery using -c on the config object' do
+      d = RCelery::Daemon.new(['-c','true'])
+      d.instance_variable_get(:@config).amqp_auto_recovery.should == true
+    end
+
+    it 'sets the amqp_auto_recovery using --connection_recovery on the config object' do
+      d = RCelery::Daemon.new(['--connection_recovery','true'])
+      d.instance_variable_get(:@config).amqp_auto_recovery.should == true
+    end
+
+    it 'sets the amqp_reconnect_wait_time using -C on the config object' do
+      d = RCelery::Daemon.new(['-C','30'])
+      d.instance_variable_get(:@config).amqp_reconnect_wait_time.should == 30
+    end
+
+    it 'sets the amqp_reconnect_wait_time using --connection_retry_wait on the config object' do
+      d = RCelery::Daemon.new(['--connection_retry_wait','40'])
+      d.instance_variable_get(:@config).amqp_reconnect_wait_time.should == 40
+    end
+
     it 'requires files specified using -t' do
       d = RCelery::Daemon.new(['-t','config/libtasks'])
       Libtasks.should be

@@ -30,6 +30,14 @@ module RCelery
           @config.application = application
         end
 
+        opt.on('-c', '--connection_recovery CONNECTION', 'Use RCelery and AMQP chanel and connection recovery (default false)') do |connection|
+          @config.amqp_auto_recovery = connection
+        end
+
+        opt.on('-C', '--connection_retry_wait RETRY_PERIOD', 'The number of seconds between attempts to reconnect to the broker when connection is lost (default 10)') do |retry_period|
+          @config.amqp_reconnect_wait_time = retry_period
+        end
+
         opt.on('-t', '--tasks lib1,lib2,...', Array, 'List of libraries to require that contain task definitions') do |requires|
           requires.each do |lib|
             require lib

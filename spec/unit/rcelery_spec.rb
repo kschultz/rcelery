@@ -181,6 +181,7 @@ describe RCelery do
   describe '.publish' do
     it 'publishes a message to the exchange specified, calling to_json first' do
       exchange = mock!.publish('some message'.to_json, anything).subject
+      stub(exchange).auto_deleted? { false }
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
@@ -190,6 +191,7 @@ describe RCelery do
 
     it 'uses the application name as the routing key if none is given' do
       exchange = mock!.publish(anything, hash_including({:routing_key => 'rcelery.some_app'})).subject
+      stub(exchange).auto_deleted? { false }
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
@@ -199,6 +201,7 @@ describe RCelery do
 
     it 'publishes the message with the application/json content_type' do
       exchange = mock!.publish(anything, hash_including({:content_type => 'application/json'})).subject
+      stub(exchange).auto_deleted? { false }
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
@@ -208,6 +211,18 @@ describe RCelery do
 
     it 'passes any options to the exchange' do
       exchange = mock!.publish(anything, hash_including({:some => 'option'})).subject
+      stub(exchange).auto_deleted? { false }
+      stub(@channel).direct('celery', anything) { exchange }
+      stub(RCelery).channel { @channel }
+      RCelery.start(@options)
+
+      RCelery.publish(:request, 'some message', {:some => 'option'})
+    end
+
+    it 'redclares the exchange if it is set to auto_delete as it may not exist anymore' do
+      exchange = mock!.publish(anything, hash_including({:some => 'option'})).subject
+      stub(exchange).auto_deleted? { true }
+      mock(exchange).redeclare
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)

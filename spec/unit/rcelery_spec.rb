@@ -186,6 +186,10 @@ describe RCelery do
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
 
+      stub(EM).next_tick.returns do |block|
+        block.call
+      end
+
       RCelery.publish(:request, 'some message', {:some => 'option'})
     end
 
@@ -195,6 +199,10 @@ describe RCelery do
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
+
+      stub(EM).next_tick.returns do |block|
+        block.call
+      end
 
       RCelery.publish(:request, 'some message', {:some => 'option'})
     end
@@ -206,6 +214,10 @@ describe RCelery do
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
 
+      stub(EM).next_tick.returns do |block|
+        block.call
+      end
+
       RCelery.publish(:request, 'some message', {:some => 'option'})
     end
 
@@ -215,6 +227,10 @@ describe RCelery do
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
+
+      stub(EM).next_tick.returns do |block|
+        block.call
+      end
 
       RCelery.publish(:request, 'some message', {:some => 'option'})
     end
@@ -226,6 +242,22 @@ describe RCelery do
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)
+
+      stub(EM).next_tick.returns do |block|
+        block.call
+      end
+
+      RCelery.publish(:request, 'some message', {:some => 'option'})
+    end
+
+    it 'schedules the message publish to occur at the next event machine tick' do
+      exchange = stub
+      stub(exchange).auto_deleted? { false }
+      stub(@channel).direct('celery', anything) { exchange }
+      stub(RCelery).channel { @channel }
+      RCelery.start(@options)
+
+      mock(EM).next_tick
 
       RCelery.publish(:request, 'some message', {:some => 'option'})
     end

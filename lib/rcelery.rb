@@ -103,6 +103,8 @@ module RCelery
     exchanges[exchange].redeclare if exchanges[exchange].auto_deleted?
     options[:routing_key] ||= queue_name
     options[:content_type] = 'application/json'
-    exchanges[exchange].publish(message.to_json, options)
+    EM.next_tick do
+      exchanges[exchange].publish(message.to_json, options)
+    end
   end
 end

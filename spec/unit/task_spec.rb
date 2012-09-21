@@ -32,16 +32,36 @@ describe RCelery::Task do
   end
 
   describe '.result_queue' do
-    it 'returns the result_queue for the task_id' do
+    it 'redeclares the results exchange as it is auto_delete and could have been deleted' do
+      result_exchange = Object.new
+      mock(result_exchange).redeclare
+
       result_queue = Object.new
-      mock(result_queue).bind('result_exchange', hash_including(:routing_key => 'someuuid')) { result_queue }
+      mock(result_queue).bind(result_exchange, hash_including(:routing_key => 'someuuid')) { result_queue }
 
       channel = Object.new
       mock(channel).queue('someuuid', hash_including(:durable => true, :auto_delete => true,
         :arguments => { 'x-expires' => 3600000 })) { result_queue }
 
       stub(RCelery).channel { channel }
-      stub(RCelery).exchanges { {:result => 'result_exchange'} }
+      stub(RCelery).exchanges { {:result => result_exchange} }
+
+      RCelery::Task.result_queue('some-uuid').should == result_queue
+    end
+
+    it 'returns the result_queue for the task_id' do
+      result_exchange = Object.new
+      stub(result_exchange).redeclare
+
+      result_queue = Object.new
+      mock(result_queue).bind(result_exchange, hash_including(:routing_key => 'someuuid')) { result_queue }
+
+      channel = Object.new
+      mock(channel).queue('someuuid', hash_including(:durable => true, :auto_delete => true,
+        :arguments => { 'x-expires' => 3600000 })) { result_queue }
+
+      stub(RCelery).channel { channel }
+      stub(RCelery).exchanges { {:result => result_exchange} }
 
       RCelery::Task.result_queue('some-uuid').should == result_queue
     end
@@ -53,15 +73,18 @@ describe RCelery::Task do
         stub(t).publish_result
       end
 
+      result_exchange = Object.new
+      stub(result_exchange).redeclare
+
       result_queue = Object.new
-      mock(result_queue).bind('result_exchange', hash_including(:routing_key => 'guid')) { result_queue }
+      mock(result_queue).bind(result_exchange, hash_including(:routing_key => 'guid')) { result_queue }
 
       channel = Object.new
       mock(channel).queue('guid', hash_including(:durable => true, :auto_delete => true,
         :arguments => { 'x-expires' => 3600000 })) { result_queue }
 
       stub(RCelery).channel { channel }
-      stub(RCelery).exchanges { {:result => 'result_exchange'} }
+      stub(RCelery).exchanges { {:result => result_exchange} }
 
       task = {'task' => 'different_name', 'args' => [1,2], 'kwargs' => {'c' => 3}, 'id' =>  'guid'}
 
@@ -86,18 +109,12 @@ describe RCelery::Task do
 
     it 'publishes the successful result to the result queue when ignore_result is false' do
       stub(RCelery::Task).result_queue
-      mock(results = Object.new).publish({ :result => 6, :status => 'SUCCESS',
-        :task_id => 'guid', :traceback => [] }.to_json, hash_including(:persistent => true))
-      channel, queue = stub_amqp
-
-      stub(channel).direct('celeryresults', anything) { results }
-
-      RCelery.start
+      mock(RCelery).publish(:result, { :result => 6, :status => 'SUCCESS',
+        :task_id => 'guid', :traceback => [] }, hash_including(:persistent => true))
 
       task = {'task' => 'different_name', 'args' => [1,2], 'kwargs' => {'c' => 3}, 'id' =>  'guid'}
 
       RCelery::Task.execute(task)
-      RCelery.stop
     end
 
     it 'publishes the failed result to the result queue when ignore_result is false' do
@@ -115,17 +132,10 @@ describe RCelery::Task do
         raise raised
       end
 
-      results = mock!.publish({ :result => raised, :status => 'FAILURE',
-        :task_id => 'guid', :traceback => raised.backtrace }.to_json, hash_including(:persistent => true)).subject
-      channel, queue = stub_amqp
-
-      stub(channel).direct('celeryresults', anything) { results }
-
-      RCelery.start
+      mock(RCelery).publish(:result, { :result => raised, :status => 'FAILURE',
+        :task_id => 'guid', :traceback => raised.backtrace }, hash_including(:persistent => true)).subject
 
       RCelery::Task.execute(task)
-
-      RCelery.stop
     end
   end
 
@@ -159,34 +169,24 @@ describe RCelery::Task do
   describe '#delay' do
     it 'publishes a message to the request exchange with the correct arguments' do
       stub(UUID).generate { 'some_uuid' }
-      request = mock!.publish({:id => 'some_uuid', :task => 'different_name',
-        :args => [1,2], :kwargs => {:some => 'kwarg'}}.to_json, hash_including(:persistent => true, :routing_key => 'different_route')).subject
-      channel, queue = stub_amqp
+      mock(RCelery).publish(:request, {:id => 'some_uuid', :task => 'different_name',
+        :args => [1,2], :kwargs => {:some => 'kwarg'}}, hash_including(:persistent => true, :routing_key => 'different_route'))
 
-      stub(channel).direct('celery', anything) { request }
-
-      RCelery.start
+      stub(RCelery::AsyncResult).new
 
       @task.delay(1,2,{:some => 'kwarg'})
-
-      RCelery.stop
     end
   end
 
   describe '#apply_async' do
     it 'can override routing key' do
       stub(UUID).generate { 'some_uuid' }
-      request = mock!.publish({:id => 'some_uuid', :task => 'different_name',
-        :args => [1,2], :kwargs => {:some => 'kwarg'}}.to_json, hash_including(:persistent => true, :routing_key => 'the_route')).subject
-      channel, queue = stub_amqp
+      mock(RCelery).publish(:request, {:id => 'some_uuid', :task => 'different_name',
+        :args => [1,2], :kwargs => {:some => 'kwarg'}}, hash_including(:persistent => true, :routing_key => 'the_route'))
 
-      stub(channel).direct('celery', anything) { request }
-
-      RCelery.start
+      stub(RCelery::AsyncResult).new
 
       @task.apply_async(:args=>[1,2],:kwargs=>{:some => 'kwarg'},:routing_key=>'the_route')
-
-      RCelery.stop
     end
   end
 

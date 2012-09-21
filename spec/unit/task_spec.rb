@@ -32,9 +32,9 @@ describe RCelery::Task do
   end
 
   describe '.result_queue' do
-    it 'redeclares the results exchange as it is auto_delete and could have been deleted' do
+    it 'resets the results exchange as it is auto_delete and could have been deleted' do
       result_exchange = Object.new
-      mock(result_exchange).redeclare
+      mock(result_exchange).reset
 
       result_queue = Object.new
       mock(result_queue).bind(result_exchange, hash_including(:routing_key => 'someuuid')) { result_queue }
@@ -51,7 +51,7 @@ describe RCelery::Task do
 
     it 'returns the result_queue for the task_id' do
       result_exchange = Object.new
-      stub(result_exchange).redeclare
+      stub(result_exchange).reset
 
       result_queue = Object.new
       mock(result_queue).bind(result_exchange, hash_including(:routing_key => 'someuuid')) { result_queue }
@@ -74,7 +74,7 @@ describe RCelery::Task do
       end
 
       result_exchange = Object.new
-      stub(result_exchange).redeclare
+      stub(result_exchange).reset
 
       result_queue = Object.new
       mock(result_queue).bind(result_exchange, hash_including(:routing_key => 'guid')) { result_queue }

@@ -235,10 +235,10 @@ describe RCelery do
       RCelery.publish(:request, 'some message', {:some => 'option'})
     end
 
-    it 'redclares the exchange if it is set to auto_delete as it may not exist anymore' do
+    it 'resets the exchange if it is set to auto_delete as it may not exist anymore' do
       exchange = mock!.publish(anything, hash_including({:some => 'option'})).subject
       stub(exchange).auto_deleted? { true }
-      mock(exchange).redeclare
+      mock(exchange).reset
       stub(@channel).direct('celery', anything) { exchange }
       stub(RCelery).channel { @channel }
       RCelery.start(@options)

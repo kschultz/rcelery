@@ -18,7 +18,8 @@ module Support
       :vhost =>       ENV['RCELERY_VHOST'] || '/integration',
       :username =>    ENV['RCELERY_USERNAME'] || 'guest',
       :password =>    ENV['RCELERY_PASSWORD'] || 'guest',
-      :worker_count => ENV['RCELERY_WORKERS'] || 2
+      :worker_count => ENV['RCELERY_WORKERS'] || 2,
+      :amqp_auto_recovery => ENV['RCELERY_AUTO_RECOVERY'] || true
     }
   end
 end

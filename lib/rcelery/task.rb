@@ -28,7 +28,7 @@ module RCelery
     end
 
     def self.result_queue(task_id)
-      RCelery.exchanges[:result].redeclare
+      RCelery.exchanges[:result].reset
       queue_name = task_id.gsub('-', '')
       RCelery.channel.queue(
         queue_name,

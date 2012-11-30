@@ -70,6 +70,18 @@ module RCelery
     return unless @config.amqp_auto_recovery
     RCelery.channel.auto_recovery = true
 
+    AMQP.connection.on_connection_interruption do |conn, connection_close|
+      conn.periodically_reconnect(@config.amqp_reconnect_wait_time)
+    end
+
+    AMQP.connection.on_tcp_connection_failure do |conn, connection_close|
+      conn.periodically_reconnect(@config.amqp_reconnect_wait_time)
+    end
+
+    AMQP.connection.on_tcp_connection_loss do |conn, connection_close|
+      conn.periodically_reconnect(@config.amqp_reconnect_wait_time)
+    end
+
     AMQP.connection.on_error do |conn, connection_close|
       conn.periodically_reconnect(@config.amqp_reconnect_wait_time)
     end

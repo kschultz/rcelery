@@ -76,6 +76,8 @@ describe RCelery do
       stub(channel).queue { @queue }
 
       amqp_connection = stub!.on_error.subject
+      stub(amqp_connection).on_tcp_connection_loss
+      stub(amqp_connection).on_tcp_connection_failure
       stub(amqp_connection).connected? { false }
       stub(AMQP).connection { amqp_connection }
 
@@ -95,8 +97,58 @@ describe RCelery do
       stub(RCelery).channel { channel }
 
       amqp_connection = mock
+      stub(amqp_connection).on_tcp_connection_loss
+      stub(amqp_connection).on_tcp_connection_failure
       mock(amqp_connection).periodically_reconnect(40)
       mock(amqp_connection).on_error.returns do |block|
+        block.call(amqp_connection, "blah")
+      end
+      stub(amqp_connection).connected? { false }
+      stub(AMQP).connection { amqp_connection }
+
+      RCelery.start(@options)
+    end
+
+    it 'sets up the AMQP connection to attempt to reconnect on tcp connection loss' do
+      @options[:amqp_auto_recovery] = true
+      @options[:amqp_reconnect_wait_time] = 40
+
+      channel = mock
+      stub(channel).auto_recovery=(true)
+      stub(channel).direct
+      stub(channel).topic
+      stub(channel).queue { @queue }
+      stub(RCelery).channel { channel }
+
+      amqp_connection = mock
+      stub(amqp_connection).on_error
+      stub(amqp_connection).on_tcp_connection_failure
+      mock(amqp_connection).periodically_reconnect(40)
+      mock(amqp_connection).on_tcp_connection_loss.returns do |block|
+        block.call(amqp_connection, "blah")
+      end
+      stub(amqp_connection).connected? { false }
+      stub(AMQP).connection { amqp_connection }
+
+      RCelery.start(@options)
+    end
+
+    it 'sets up the AMQP connection to attempt to reconnect on tcp connection failure' do
+      @options[:amqp_auto_recovery] = true
+      @options[:amqp_reconnect_wait_time] = 40
+
+      channel = mock
+      stub(channel).auto_recovery=(true)
+      stub(channel).direct
+      stub(channel).topic
+      stub(channel).queue { @queue }
+      stub(RCelery).channel { channel }
+
+      amqp_connection = mock
+      stub(amqp_connection).on_error
+      stub(amqp_connection).on_tcp_connection_loss
+      mock(amqp_connection).periodically_reconnect(40)
+      mock(amqp_connection).on_tcp_connection_failure.returns do |block|
         block.call(amqp_connection, "blah")
       end
       stub(amqp_connection).connected? { false }

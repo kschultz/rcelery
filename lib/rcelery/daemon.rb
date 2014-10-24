@@ -45,7 +45,7 @@ module RCelery
         end
 
         opt.on('-r', '--rails', 'Require \'config/environment\' to provide the Rails environment and load config/rcelery.yml into the config') do
-          require 'config/environment'
+          require File.join(Dir.pwd, 'config/environment')
           require 'rcelery/rails'
           @config.update_with_hash(RCelery::Rails.get_config_hash)
           ::Rails.logger.auto_flushing = true

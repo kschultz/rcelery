@@ -1,5 +1,4 @@
 require 'integration/spec_helper'
-require 'system_timer'
 
 describe 'Ruby Worker' do
   include Tasks
@@ -22,7 +21,7 @@ describe 'Ruby Worker' do
   it 'will defer tasks scheduled for the future' do
     sleep_result = sleeper.apply_async(:args => 5, :eta => Time.now + 5)
 
-    SystemTimer.timeout(4) do
+    Timeout::timeout(4) do
       result = subtract.delay(20, 1)
       result.wait.should == 19
     end
@@ -78,7 +77,7 @@ describe 'Ruby Worker' do
     sleep_result = sleeper.delay(5)
     sleep(1)
 
-    SystemTimer.timeout(3) do
+    Timeout::timeout(3) do
       subtract_result = subtract.delay(20,1)
       subtract_result.wait.should == 19
     end

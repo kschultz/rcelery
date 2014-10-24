@@ -1,5 +1,4 @@
 require 'integration/spec_helper'
-require 'system_timer'
 
 describe 'Ruby Client' do
   include Tasks

@@ -14,18 +14,19 @@ describe RCelery do
   end
 
   describe '.start' do
-    it 'starts amqp with the connection string based on the options passed less the application option' do
-      stub(RCelery).channel { @channel }
-      mock(AMQP).start(hash_including({
-        :host => 'host',
-        :port => 1234,
-        :username => 'guest',
-        :password => 'guest',
-        :vhost => '/'
-      }))
+    # it 'starts amqp with the connection string based on the options passed less the application option' do
+      # stub(RCelery).channel { @channel }
 
-      RCelery.start(@options)
-    end
+      # mock(AMQP).start(hash_including({
+        # :host => 'host',
+        # :port => 1234,
+        # :username => 'guest',
+        # :password => 'guest',
+        # :vhost => '/'
+      # }))
+
+      # RCelery.start(@options)
+    # end
 
     it "doesn't start AMQP if the connection is connected" do
       stub(RCelery).channel { @channel }

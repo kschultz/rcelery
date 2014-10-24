@@ -5,7 +5,7 @@ Bundler.setup
 
 require 'rspec'
 require 'rcelery'
-require 'spec/integration/tasks'
+require_relative 'tasks'
 require 'timeout'
 
 

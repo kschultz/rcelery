@@ -22,7 +22,9 @@ module RCelery
 
     unless eager_mode?
       if AMQP.connection.nil? || !AMQP.connection.connected?
-        @thread = Thread.new { AMQP.start(config.to_hash) }
+        @thread = Thread.new do
+          AMQP.start(config.to_hash)
+        end
       end
 
       channel = RCelery.channel

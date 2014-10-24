@@ -5,6 +5,7 @@ describe RCelery::Daemon do
 
   before(:each) do
     # @channel, @queue = stub_amqp
+    stub(RCelery::Daemon::Dir).pwd { File.join(File.dirname(File.expand_path(__FILE__)), '../') }
   end
 
   after :each do
